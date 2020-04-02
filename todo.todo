@@ -10,12 +10,13 @@ Queueing Theory:
 
 Environment Definition:
     Elevator Direction:
-        ☐ Do we need two queues per floor, one going up and one going down?
-        ☐ How do we choose which to load if we don't have an intent with loading?
-        ☐ Do we need two loading actions? One for up and one for down queue?
+        ✔ Do we need two queues per floor, one going up and one going down? @done(20-04-02 14:52)
+          How do we choose which to load if we don't have an intent with loading?
+        ✔ Do we need two loading actions? One for up and one for down queue? @done(20-04-02 14:52)
+          Pretty sure we need one if we have two different queues
 
     Action Space:
-        ☐ Why chose available actions: up, down, load, unload, wait
+        ☐ Define available actions: up, down, load up/down, unload, wait
         ☐ Multi-step timing: how to handle, i.e. just change to wait when illegal vs changing probabilities
 
     Floor Arrivals:
@@ -37,7 +38,7 @@ Reward/Metrics Definition:
     Metrics:
     What exactly are we optimizing for? Multiple competing options to choose from. Can't optimize for all
         ☐ Average wait time, single people vs larger groups
-        ☐ Minimum wait time
+        ☐ Minimum/maximum wait time
         ☐ Leaving vs arriving back to hotel, difference?
         ☐ Waiting in elevator vs on the floor
 
