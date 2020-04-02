@@ -5,7 +5,7 @@
   title:"RLevator"
   subtitle:"Exploring elevators with reinforcement learning"
   author:"Matthew Burke"
-  authorLink:"https://mwburke.github.io/"
+  authorLink:"https://github.com/mwburke/RLevator"
   background:"#222222"
   color:"#ffffff"
    /]
@@ -18,7 +18,7 @@ While academic research in reinforcement learning is continuing to advance, comp
 
 In this project, I will be walking step by step through my thought process of how to frame and solve the problem of creating an automated elevator management system using reinforcement learning through the following posts:
 
-1. [Queueing Theory](./post-1/) (in progress)
+1. [Queueing Theory Learnings](./post-1/) (in progress)
 2. Environment Definition (to do)
 3. Reward Function and Metrics (to do)
 4. Modeling Approach (to do)

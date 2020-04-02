@@ -9,6 +9,11 @@ Queueing Theory:
     ☐ Or show how we can just use regular numpy/pytorch for it
 
 Environment Definition:
+    Elevator Direction:
+        ☐ Do we need two queues per floor, one going up and one going down?
+        ☐ How do we choose which to load if we don't have an intent with loading?
+        ☐ Do we need two loading actions? One for up and one for down queue?
+
     Action Space:
         ☐ Why chose available actions: up, down, load, unload, wait
         ☐ Multi-step timing: how to handle, i.e. just change to wait when illegal vs changing probabilities
@@ -59,6 +64,7 @@ Experiments:
     ☐ Number of elevators
     ☐ Capacity of elevators
     ☐ Reward functions (comparing to same metrics and tracking avg rewards and metrics to see both go up)
+    ☐ Unusual floor arrival rates (restaurant on top floor, gym on second, etc)
     ☐ Multi-floor elevators
     Algorithms:
         ☐ Actor/critic (MADDPG) vs others specified above
