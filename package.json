@@ -1,0 +1,17 @@
+{
+  "name": "rlevator",
+  "version": "1.0.0",
+  "license": "Apache 2.0",
+  "idyll": {
+    "theme": "default",
+    "layout": "centered",
+    "css": "template/styles.css",
+    "authorView": false,
+    "output": "docs/"
+  },
+  "dependencies": {
+    "d3": "^4.0.0",
+    "idyll": "^4.4.0",
+    "idyll-d3-component": "^2.0.0"
+  }
+}

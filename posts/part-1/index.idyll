@@ -1,0 +1,15 @@
+[meta title:"Part 1: Queueing Theory" description:"Modeling arrivals in a building environment" /]
+
+[Header
+  fullWidth:true
+  title:"Part 1: Queueing Theory"
+  subtitle:"Modeling arrivals in a building environment"
+  author:"Matthew Burke"
+  authorLink:"https://mwburke.github.io/"
+  background:"#222222"
+  color:"#ffffff"
+   /]
+
+## Queueing Theory 101
+
+TODO: discuss the poisson and exponential distributions and their use as modeling arrivals, memoryless property (why it's a strong assumption for this problem), M/M/1 queues, FIFO, balance equations, why simpy is a useful tool for simulations, interactive visualization of distributions in different queues

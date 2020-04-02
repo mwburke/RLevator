@@ -1,0 +1,25 @@
+[meta title:"RLevator" description:"Exploring elevators with reinforcement learning" /]
+
+[Header
+  fullWidth:true
+  title:"RLevator"
+  subtitle:"Exploring elevators with reinforcement learning"
+  author:"Matthew Burke"
+  authorLink:"https://mwburke.github.io/"
+  background:"#222222"
+  color:"#ffffff"
+   /]
+
+## RL Elevator Agents
+
+While academic research in reinforcement learning is continuing to advance, companies are still struggling to find practical applications in which it can be used. I believe elevators are an area of opportunity in that they have a very limited action space and environment that can be modeled fairly simply compared to high fidelity simulations that self-driving cars require. Additionally, the speed of elevators and relatively low impact of incorrect actions makes them low-risk for an implementation in a real building.
+
+## Project Pages
+
+In this project, I will be walking step by step through my thought process of how to frame and solve the problem of creating an automated elevator management system using reinforcement learning through the following posts:
+
+1. [Queueing Theory](./post-1/) (in progress)
+2. Environment Definition (to do)
+3. Reward Function and Metrics (to do)
+4. Modeling Approach (to do)
+5. Experiments (to do)

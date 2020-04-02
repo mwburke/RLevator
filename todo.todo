@@ -1,0 +1,80 @@
+Documentation:
+    ✔ Learn more about how idyll does multipage stuff @done(20-04-01 21:43)
+    ✔ Create the summary index page to talk about purpose of project @done(20-04-01 22:12)
+
+Queueing Theory:
+    ☐ Research how exponential/poisson distributions play off one another
+    ☐ Look into how to use poisson for arrivals to each floor
+    ☐ Show how simpy can meet some of these needs and can be used for the environment?
+    ☐ Or show how we can just use regular numpy/pytorch for it
+
+Environment Definition:
+    Action Space:
+        ☐ Why chose available actions: up, down, load, unload, wait
+        ☐ Multi-step timing: how to handle, i.e. just change to wait when illegal vs changing probabilities
+
+    Floor Arrivals:
+        ☐ Arrival rates using the already defined queueing theory principles
+        ☐ Assumptions we make to keep it simple for now (single person)
+        ☐ Potential modifications to make it more realistic
+        ☐ Adjustments to rate by floors, bottom floor in particular
+        ☐ Adjustments to be made for weekdays vs weekends and time of day
+        ☐ Rates need to be low enough for elevators to actually satisfy, how can we determine this beforehand?
+
+    State Encoding:
+    At most granular level with N floors, X elevators
+        ☐ N x N matrix representing counts of users waiting on a floor and the floor they would like to go to
+        ☐ X x N matrix representing counts of users waiting in elevator and the floor they would like to go to
+
+Reward/Metrics Definition:
+    ☐ Introduction on why measuring success and making the model optimize for success is so difficult
+
+    Metrics:
+    What exactly are we optimizing for? Multiple competing options to choose from. Can't optimize for all
+        ☐ Average wait time, single people vs larger groups
+        ☐ Minimum wait time
+        ☐ Leaving vs arriving back to hotel, difference?
+        ☐ Waiting in elevator vs on the floor
+
+    Reward Components:
+    Discuss how each of these need to be thought through and weighted against one another
+        ☐ Positive reward on arrival to destination
+        ☐ Negative rewards for waiting
+           Is it the same for before elevator? on elevator? no penalty for short period at beginning?
+        ☐ Positive reward for boarding onto elevator
+        ☐ Negative reward for people who could not board elevator when loading because capacity
+
+Modeling:
+    Potential Formulations:
+        ☐ Single agent with full observation
+        ☐ Single agent with actor using partial observation and critic with full observation
+        ☐ Multi-agent with actors using partial observations and critic with full observation
+        ☐ Max cost network flow or multiple vehicle routing problems, thought projects, don't actually need to solve
+
+    Benchmark:
+        ☐ Need to code up a single elevator one, not sure how to code up multiple (which is kind of the point)
+
+Experiments:
+    ☐ Floor heights
+    ☐ Number of elevators
+    ☐ Capacity of elevators
+    ☐ Reward functions (comparing to same metrics and tracking avg rewards and metrics to see both go up)
+    ☐ Multi-floor elevators
+    Algorithms:
+        ☐ Actor/critic (MADDPG) vs others specified above
+        ☐ Network architectures
+        ☐ Learning rates
+        ☐ Full observation vs partial
+
+Notes:
+    Illegal and/or Multi-Step Actions:
+        ☐ https://ai.stackexchange.com/questions/7755/how-to-implement-a-constrained-action-space-in-reinforcement-learning
+        ☐ https://ai.stackexchange.com/questions/2980/how-to-handle-invalid-moves-in-reinforcement-learning
+
+Papers:
+    ☐ https://pdfs.semanticscholar.org/4617/d0778ce91f1dd098815831167b3a2034ec20.pdf
+    ☐ http://www.math.wpi.edu/MPI2003/UTRC/UTRC03.pdf
+    ☐ https://www.sciencedirect.com/science/article/pii/S0166218X06001466
+    ☐ http://sal.aalto.fi/publications/pdf-files/ejor2016_public.pdf (omg I was right)
+    ☐ http://file.scirp.org/Html/5-8101634_20548.htm
+    ☐ https://papers.nips.cc/paper/1073-improving-elevator-performance-using-reinforcement-learning.pdf
