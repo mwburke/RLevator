@@ -43,7 +43,7 @@ class Passenger(object):
 
         self.steps_age += 1
 
-    def destination_floor(self):
+    def get_destination_floor(self):
         return self.destination_floor
 
     def get_age(self):
