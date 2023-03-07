@@ -48,7 +48,7 @@ class Passenger(object):
         self.steps_age += 1
 
     def get_start_floor(self):
-        return self.start_floro
+        return self.start_floor
 
     def get_destination_floor(self):
         return self.destination_floor

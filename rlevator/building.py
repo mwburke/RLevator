@@ -55,6 +55,8 @@ class Building(object):
         """
         self.up_queues = [list() for _ in range(self.num_floors)]
         self.down_queues = [list() for _ in range(self.num_floors)]
+        self.rejected_queue_passengers = []
+        self.deboarding_passengers = []
 
     def _initialize_elevators(self, elevator_capacities, elevator_start_floors,
                               elevator_bounds):
@@ -81,22 +83,20 @@ class Building(object):
         # Input error checking
         if elevator_capacities is None:
             raise Exception("Elevator capacities cannot be None")
-        elif len(elevator_capacities) > 1 & \
-                len(elevator_capacities) < self.num_elevators:
-            raise Exception("Elevator capacities should either be an integer "
-                            "or a list of integers equal to the number of "
-                            "elevators.")
+        elif type(elevator_capacities) is not int:
+            if len(elevator_capacities) < self.num_elevators:
+                raise Exception("Elevator capacities should either be an "
+                                "integer or a list of integers equal to the "
+                                "number of elevators.")
 
         if elevator_start_floors is not None:
-            if len(elevator_capacities) > 1 & \
-                    len(elevator_capacities) < self.num_elevators:
+            if len(elevator_start_floors) != self.num_elevators:
                 raise Exception("Elevator start floor should either be None "
                                 "or a list of integers equal to the number of "
                                 "elevators.")
 
         if elevator_bounds is not None:
-            if len(elevator_bounds) > 1 & \
-                    len(elevator_bounds) < self.num_elevators:
+            if len(elevator_bounds) != self.num_elevators:
                 raise Exception("Elevator bounds should either be None or a "
                                 "list of list  integers equal to the number "
                                 "of elevators.")
@@ -109,12 +109,12 @@ class Building(object):
             else:
                 start_floor = elevator_start_floors[i]
 
-            if len(elevator_capacities) == 1:
+            if type(elevator_capacities) is int:
                 capacity = elevator_capacities
             else:
                 capacity = elevator_capacities[i]
 
-            if elevator_bounds is not None:
+            if elevator_bounds is None:
                 min_floor = 0
                 max_floor = self.num_floors - 1
             else:
@@ -126,6 +126,23 @@ class Building(object):
             )
 
         self.elevators = elevators
+
+    def get_queue(self, floor, up=False):
+        """
+        Get a queue of passengers on a given floor.
+
+        Args:
+            floor : int
+                Floor number to get the queue from
+            up : bool
+                Boolean denoting whether to get the up floor if True
+                or the down floor is False
+
+        Returns: List[Passenger]
+        """
+        if up:
+            return self.up_queues[floor]
+        return self.down_queues[floor]
 
     def execute_step(self, arrived_passengers, action_list):
         """
@@ -159,7 +176,7 @@ class Building(object):
             self.execute_action(elevator_num, action)
 
         # Post processing
-        self.increment_step()
+        self._increment_step()
 
         # TODO: Logging/reporting
 
@@ -191,9 +208,9 @@ class Building(object):
         start_floor = passenger.get_start_floor()
 
         if passenger.get_destination_floor() > start_floor:
-            try_queue = len(self.up_queues[start_floor])
+            try_queue = self.up_queues[start_floor]
         elif passenger.get_destination_floor() < start_floor:
-            try_queue = len(self.down_queues[start_floor])
+            try_queue = self.down_queues[start_floor]
         else:
             raise Exception("Passenger's destination floor cannot be the same "
                             "as start floor")
@@ -202,6 +219,24 @@ class Building(object):
             try_queue.append(passenger)
         else:
             self.rejected_queue_passengers.append(passenger)
+
+    def get_rejected_queue_passengers(self):
+        """
+        Get the passengers that tried to enter a queue on this turn while the
+        queue already was at max capacity.
+
+        Return: List[Passenger]
+        """
+        return self.rejected_queue_passengers
+
+    def get_deboarding_passengers(self):
+        """
+        Get the passengers that have deboarded the elevators due to an UNLOAD
+        action.
+
+        Return: List[Passenger]
+        """
+        return self.deboarding_passengers
 
     def execute_action(self, elevator_num, action):
         """
@@ -215,9 +250,9 @@ class Building(object):
         """
         # NOTE: Choosing to not use match capability in python 3.10
         # for compatibility
-        if action == Action.DOWN:
+        if action == Action.MOVE_DOWN:
             self.move_down(elevator_num)
-        elif action == Action.UP:
+        elif action == Action.MOVE_UP:
             self.move_up(elevator_num)
         elif action == Action.WAIT:
             self.wait(elevator_num)
@@ -269,7 +304,9 @@ class Building(object):
         Args:
             elevator_num : int
                 Index of the elevator to take the action
-
+            queue : List[Passenger]
+                Elevator queue of Passengers waiting to board in the specified
+                direction.
         """
         boarding_passengers = []
         available_capacity = elevator.available_capacity()
@@ -297,7 +334,39 @@ class Building(object):
             for passenger in elevator.passengers:
                 passenger.increment_step(in_elevator=True)
 
-    def elevator_request_button_status(self):
+    def elevator_destination_bool_list(self):
+        """
+        Return a list of lists of booleans representing whether or not there is
+        at least one passenger on each elevator wanting to go to each floor or
+        not.
+
+        Returns: List[List[bool]]
+            Lists for each elevator containing a list of booleans, one for each
+            floor where true means at least one passenger has that floor as
+            theri destination.
+        """
+        destinations = []
+        for i in range(self.num_elevators):
+            destinations.append(self.elevator[i].get_destination_bool_list())
+
+        return destinations
+
+    def elevator_destinations(self):
+        """
+        Return a list of lists of ints representing that there is at least one
+        passenger on each elevator wanting to go to that floor.
+
+        Returns: List[List[int]]
+            Lists for each elevator containing a list of ints denoting the
+            floors that its passengers have as their destinations.
+        """
+        destinations = []
+        for i in range(self.num_elevators):
+            destinations.append(self.elevator[i].get_destinations())
+
+        return destinations
+
+    def queue_request_button_statuses(self):
         """
         Get the status of up/down elevator request buttons based on the queues.
         This will be used in the standard observation space.
