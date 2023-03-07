@@ -2,10 +2,11 @@ class Elevator(object):
 
     def __init__(self, start_floor, capacity, min_floor, max_floor):
         """
-        Elevator representation. Holds passengers and is aware of its own capacity
-        and general passenger destinations. The destinations are stored as a list of
-        booleans, with true meaning that the button has been clicked and the corresponding
-        passengers have not yet been unloaded onto that destination floor.
+        Elevator representation. Holds passengers and is aware of its own
+        capacity and general passenger destinations. The destinations are
+        stored as a list of booleans, with true meaning that the button has
+        been clicked and the corresponding passengers have not yet been
+        unloaded onto that destination floor.
 
         Floor zero is the bottom floor and it goes up from there.
 
@@ -17,7 +18,8 @@ class Elevator(object):
             max_floor : int
                 Top floor that the elevator can access
             capacity : int
-                Total number of passengers that the elevator can hold at any one time.
+                Total number of passengers that the elevator can hold at any
+                one time.
         """
 
         self.floor = start_floor
@@ -30,7 +32,8 @@ class Elevator(object):
 
     def _update_destinations(self):
         """
-        Reset the destinations to false, and then reinitialize based on current passengers.
+        Reset the destinations to false, and then reinitialize based on
+        current passengers.
         """
         destinations = set()
 
@@ -59,7 +62,8 @@ class Elevator(object):
 
     def destination_floors(self):
         """
-        Returns a list of the floors that are destinations for at least one passenger.
+        Returns a list of the floors that are destinations for at least one
+        passenger.
         """
         return self.destinations
 
@@ -86,10 +90,10 @@ class Elevator(object):
 
     def move(self, floor_diff):
         """
-        Move the elevator based on the floor difference provided. Clamp the floor number
-        to be between the minimum and maximum floors. This means that if the move function
-        is called and it would be out of bounds, it only goes to the limit and will not
-        exceed.
+        Move the elevator based on the floor difference provided. Clamp the
+        floor number to be between the minimum and maximum floors. This means
+        that if the move function is called and it would be out of bounds, it
+        only goes to the limit and will not exceed.
 
         TODO: decide if we want to raise and exception for out of bounds errors
 
@@ -97,19 +101,23 @@ class Elevator(object):
             floor_diff : int
                 Integer number of floors to move based on floor number.
         """
-        new_floor = max(min(self.floor + floor_diff, self.max_floor), self.min_floor)
+        new_floor = max(
+            min(self.floor + floor_diff, self.max_floor),
+            self.min_floor
+        )
 
         self.floor = new_floor
 
     def load_passengers(self, passengers):
         """
-        Load new passengers onto the elevator and update destinations accordingly.
+        Load new passengers onto the elevator and update destinations.
 
         Args:
             passengers : List[Passenger]
         """
         if len(passengers) > self.available_capacity():
-            raise Exception("The elevator cannot handle this many passengers and will be over capacity")
+            raise Exception("The elevator cannot handle this many passengers "
+                            "and will be over capacity")
 
         self.passengers += passengers
 
@@ -117,10 +125,10 @@ class Elevator(object):
 
     def unload_passengers(self):
         """
-        Identify all passengers with the current floor as the destination and return
-        them in a list. Set the passengers list to be the remaining passengers that
-        were not returned. There is no limit to the number of passengers that can
-        be unloaded at one time.
+        Identify all passengers with the current floor as the destination and
+        return them in a list. Set the passengers list to be the remaining
+        passengers that were not returned. There is no limit to the number of
+        passengers that can be unloaded at one time.
 
         Returns:
             List[Passenger]
@@ -142,13 +150,14 @@ class Elevator(object):
 
     def count_correct_move_passengers(self, start_floor):
         """
-        After an elevator has moved, count the number of passengers for which the
-        move was in the correct direction for their destination.
+        After an elevator has moved, count the number of passengers for which
+        the move was in the correct direction for their destination.
 
         Args:
             start_floor : int
-                The previous floor that the elevator was on before moving. The end
-                floor is the current floor the elevator is on since it has already moved.
+                The previous floor that the elevator was on before moving. The
+                end floor is the current floor the elevator is on since it has
+                already moved.
 
         Returns:
             int
@@ -164,13 +173,14 @@ class Elevator(object):
 
     def count_incorrect_move_passengers(self, start_floor):
         """
-        After an elevator has moved, count the number of passengers for which the
-        move was in the incorrect direction for their destination.
+        After an elevator has moved, count the number of passengers for which
+        the move was in the incorrect direction for their destination.
 
         Args:
             start_floor : int
-                The previous floor that the elevator was on before moving. The end
-                floor is the current floor the elevator is on since it has already moved.
+                The previous floor that the elevator was on before moving. The
+                end floor is the current floor the elevator is on since it has
+                already moved.
 
         Returns:
             int
@@ -186,8 +196,9 @@ class Elevator(object):
 
     def increment_passenger_steps(self):
         """
-        Calls the step increment function for every passenger in the elevator with the
-        argument that they are in the elevator so the wait age is not increased.
+        Calls the step increment function for every passenger in the elevator
+        with the argument that they are in the elevator so the wait age is not
+        increased.
         """
         for passenger in self.passengers:
             passenger.increment_step(in_elevator=True)

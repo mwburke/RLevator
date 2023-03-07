@@ -11,12 +11,13 @@ PASSENGER_0 = Passenger(
     max_wait_steps=50
 )
 
+
 def test_reached_destination_negative():
-    assert PASSENGER_0.reached_destination(1) == False
+    assert PASSENGER_0.reached_destination(1) is False
 
 
 def test_reached_destination_positive():
-    assert PASSENGER_0.reached_destination(5) == True
+    assert PASSENGER_0.reached_destination(5) is True
 
 
 def test_age():
@@ -75,7 +76,7 @@ def test_reached_max_wait_negative():
     for _ in range(num_steps):
         passenger.increment_step(in_elevator)
 
-    assert passenger.reached_max_wait() == False
+    assert passenger.reached_max_wait() is False
 
 
 def test_reached_max_wait_positive():
@@ -88,24 +89,24 @@ def test_reached_max_wait_positive():
     for _ in range(num_steps):
         passenger.increment_step(in_elevator)
 
-    assert passenger.reached_max_wait() == True
+    assert passenger.reached_max_wait() is True
 
 
 def test_moved_correct_direction_no_move():
-    assert PASSENGER_0.moved_correct_direction(1, 1) == False
+    assert PASSENGER_0.moved_correct_direction(1, 1) is False
 
 
 def test_moved_correct_direction_negative():
-    assert PASSENGER_0.moved_correct_direction(2, 1) == False
+    assert PASSENGER_0.moved_correct_direction(2, 1) is False
 
 
 def test_moved_correct_direction_positive():
-    assert PASSENGER_0.moved_correct_direction(1, 2) == True
+    assert PASSENGER_0.moved_correct_direction(1, 2) is True
 
 
 def test_moved_correct_direction_above_negative():
-    assert PASSENGER_0.moved_correct_direction(6, 7) == False
+    assert PASSENGER_0.moved_correct_direction(6, 7) is False
 
 
 def test_moved_correct_direction_above_positive():
-    assert PASSENGER_0.moved_correct_direction(7, 6) == True
+    assert PASSENGER_0.moved_correct_direction(7, 6) is True

@@ -23,7 +23,7 @@ TEST_PASSENGERS = [
         destination_floor=2,
         max_wait_steps=50
     ),
-        Passenger(
+    Passenger(
         start_step=0,
         start_floor=0,
         destination_floor=2,
@@ -69,7 +69,7 @@ def test_capacity():
     assert elevator.available_capacity() == 6
 
 
-def test_capacity():
+def test_capacity_full():
     elevator = deepcopy(TEST_ELEVATOR)
 
     assert elevator.available_capacity() == 10
@@ -98,7 +98,6 @@ def test_move():
     elevator.move(floor_diff)
 
     assert elevator.get_current_floor() == 1
-
 
 
 def test_move_wait():

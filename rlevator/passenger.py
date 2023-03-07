@@ -1,20 +1,24 @@
 class Passenger(object):
-    def __init__(self, start_step, start_floor, destination_floor, max_wait_steps=50):
+    def __init__(self, start_step, start_floor, destination_floor,
+                 max_wait_steps=50):
         """
         Passenger representation.
 
         Args:
             start_step : int
-                Step number in the environment in which the passenger was created
+                Step number in the environment in which the passenger was
+                created
             start_floor : int
                 Initial floor number for which they arrived at the elevator
             destination_floor : int
                 Floor number they are trying to reach through the elevator
             max_wait_steps : int
-                Maximum number of steps they are willing to wait before they use the stairs
+                Maximum number of steps they are willing to wait before they
+                use the stairs
         """
         if start_floor == destination_floor:
-            raise Exception("Start floor should not be equal to destination floor")
+            raise Exception("Start floor should not be equal to destination"
+                            " floor")
 
         self.start_step = start_step
         self.start_floor = start_floor
@@ -43,6 +47,9 @@ class Passenger(object):
 
         self.steps_age += 1
 
+    def get_start_floor(self):
+        return self.start_floro
+
     def get_destination_floor(self):
         return self.destination_floor
 
@@ -54,25 +61,27 @@ class Passenger(object):
 
     def reached_max_wait(self):
         """
-        Determines if the passenger has reached their maximum number of wait steps.
-        TODO: determine if the passenger leaves or increases reward penalty when
-        this condition is met. Could be an environment configuration
+        Determines if the passenger has reached their max number of wait steps.
+        TODO: determine if the passenger leaves or increases reward penalty
+        when this condition is met. Could be an environment configuration
         """
         return self.steps_age > self.max_wait_steps
 
     def reached_destination(self, elevator_floor):
         return elevator_floor == self.destination_floor
 
-    def moved_correct_direction(self, elevator_start_floor, elevator_end_floor):
+    def moved_correct_direction(self, elevator_start_floor,
+                                elevator_end_floor):
         """
-        Determines if the elevator moved in direction of the passenger's destination
-        floor or at least remained on the same floor. Main use is in the reward function
-        to penalize elevators that move in the opposite direction of any passenger's
-        destinations.
+        Determines if the elevator moved in direction of the passenger's
+        destination floor or at least remained on the same floor. Main use is
+        in the reward function to penalize elevators that move in the opposite
+        direction of any passenger's destinations.
 
-        Ideally, it should not be called is the start and end floors are equal, and
-        the elevator did not move. However, in the case it does, not moving is counted
-        as an incorrect direction since it made no progress.
+        Ideally, it should not be called is the start and end floors are
+        equal, and the elevator did not move. However, in the case it does,
+        not moving is counted as an incorrect direction since it made no
+        progress.
 
         Args:
             elevator_start_floor : int
@@ -82,8 +91,8 @@ class Passenger(object):
 
         Returns:
             bool
-                Returns true if the end floor is closer to the destination floor
-                than the original start floor of the elevator
+                Returns true if the end floor is closer to the destination
+                floor than the original start floor of the elevator
 
         """
         orig_diff = abs(elevator_start_floor - self.destination_floor)
