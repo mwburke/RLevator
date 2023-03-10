@@ -41,9 +41,10 @@ def test_generate_default_params_destination_rates():
 
     tol = 1e-3
 
+    gen_rates = DEFAULT_PARAMS['floor_destination_rates']
+
     destination_rates_match = True
-    for actual_arr, generated_arr in zip(actual_destination_rates,
-                                 DEFAULT_PARAMS['floor_destination_rates']):
+    for actual_arr, generated_arr in zip(actual_destination_rates, gen_rates):
         for actual, generated in zip(actual_arr, generated_arr):
             destination_rates_match &= abs(actual - generated) <= tol
 
@@ -80,7 +81,6 @@ def test_arrivals_sampling():
 
 def test_destination_sampling():
     # Repeated runs, looking for correct averages?
-        # Repeated runs, looking for correct averages?
     num_samples = 10000
 
     arrivals = [1, 1, 1, 1, 1]
@@ -99,19 +99,10 @@ def test_destination_sampling():
             start_floor = destination['start_floor']
             destinations[start_floor][destination['destination_floor']] += 1
 
-
     destinations_arr = array(destinations).astype(float)
     destinations_arr /= num_samples
 
     tol = 0.3
-
-    actual_arrival_rates = [
-        0.5,
-        0.1,
-        0.1,
-        0.1,
-        0.1
-    ]
 
     destinations_match = True
 
@@ -127,7 +118,7 @@ def test_destination_sampling():
 
     destination_rates_match = True
     for actual_arr, generated_arr in zip(actual_destination_rates,
-                                 destinations_arr.tolist()):
+                                         destinations_arr.tolist()):
         for actual, generated in zip(actual_arr, generated_arr):
             destination_rates_match &= abs(actual - generated) <= tol
 
