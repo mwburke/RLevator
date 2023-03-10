@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='RLevator',
-    version='0.1',
+    version='0.2',
     description='Gymnasium environment for elevator control',
     author='Matthew Burke',
     author_email='matthew.wesley.burke@gmail.com',
