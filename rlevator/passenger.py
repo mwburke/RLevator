@@ -65,7 +65,7 @@ class Passenger(object):
         TODO: determine if the passenger leaves or increases reward penalty
         when this condition is met. Could be an environment configuration
         """
-        return self.steps_age > self.max_wait_steps
+        return self.steps_wait >= self.max_wait_steps
 
     def reached_destination(self, elevator_floor):
         return elevator_floor == self.destination_floor

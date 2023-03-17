@@ -271,3 +271,57 @@ def test_increment_wait():
         meets_criteria &= passenger.get_wait() == 0
 
     assert meets_criteria is True
+
+
+def test_max_wait_removal():
+    building = deepcopy(BUILDING_3)
+
+    max_wait_passengers = [
+        Passenger(0, 0, 1),
+        Passenger(0, 1, 0),
+        Passenger(0, 1, 2)
+    ]
+
+    for passenger in max_wait_passengers:
+        passenger.steps_age = 51
+        passenger.steps_wait = 51
+
+    building.add_arrivals_to_queues(max_wait_passengers)
+
+    building.remove_max_wait_passengers()
+
+    passenger_count = 0
+    for queue in building.up_queues:
+        passenger_count += len(queue)
+
+    for queue in building.down_queues:
+        passenger_count += len(queue)
+
+    assert passenger_count == 3
+
+
+def test_max_wait_removal_queue():
+    building = deepcopy(BUILDING_3)
+
+    max_wait_passengers = [
+        Passenger(0, 0, 1),
+        Passenger(0, 1, 0),
+        Passenger(0, 1, 2)
+    ]
+
+    for passenger in max_wait_passengers:
+        passenger.steps_age = 51
+        passenger.steps_wait = 51
+
+    building.add_arrivals_to_queues(max_wait_passengers)
+
+    building.remove_max_wait_passengers()
+
+    passenger_count = 0
+    for queue in building.up_queues:
+        passenger_count += len(queue)
+
+    for queue in building.down_queues:
+        passenger_count += len(queue)
+
+    assert len(building.reached_max_wait_passengers) == 3
