@@ -57,6 +57,7 @@ class Building(object):
         self.down_queues = [list() for _ in range(self.num_floors)]
         self.rejected_queue_passengers = []
         self.deboarding_passengers = []
+        self.reached_max_wait_passengers = []
 
     def _initialize_elevators(self, elevator_capacities, elevator_start_floors,
                               elevator_bounds):
@@ -167,6 +168,10 @@ class Building(object):
         # Preprocessing
         self.deboarding_passengers = []
         self.rejected_queue_passengers = []
+        self.reached_max_wait_passengers = []
+
+        # Handle passengers that have now exceeded max wait time
+        self.remove_max_wait_passengers()
 
         # Add new passengers to queues
         self.add_arrivals_to_queues(arrived_passengers)
@@ -179,6 +184,43 @@ class Building(object):
         self._increment_step()
 
         # TODO: Logging/reporting
+
+    def remove_max_wait_passengers(self):
+        """
+        Go through all queues and remove passengers that have reached their
+        max wait time.
+        """
+        for i, queue in enumerate(self.up_queues):
+            new_queue = self.remove_max_wait_from_queue(queue)
+            self.up_queues[i] = new_queue
+
+        for  i, queue in enumerate(self.down_queues):
+            new_queue = self.remove_max_wait_from_queue(queue)
+            self.down_queues[i] = new_queue
+
+    def remove_max_wait_from_queue(self, queue):
+        """
+        Go through each passenger in the queue, and if they have reached their
+        maximum wait time, remove them from the queue and add them to the list
+        that tracks passengers who have voluntarily left the queue.
+
+        Returns the updated queue with passengers who have not reached their
+        max wait time.
+
+        Args:
+            queue : List[Passenger]
+                Elevator queue of passengers to be checked for max wait times
+
+        Returns: List[Passenger]
+        """
+        new_queue = []
+        for passenger in queue:
+            if passenger.reached_max_wait():
+                self.reached_max_wait_passengers.append(passenger)
+            else:
+                new_queue.append(passenger)
+
+        return new_queue
 
     def add_arrivals_to_queues(self, passengers):
         """
