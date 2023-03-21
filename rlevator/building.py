@@ -1,6 +1,8 @@
 from rlevator.elevator import Elevator
 from rlevator.actions import Action
 
+from numpy import array, int8
+
 
 class Building(object):
 
@@ -41,11 +43,21 @@ class Building(object):
         self.num_elevators = num_elevators
         self.max_queue = max_queue
 
+        self.elevator_capacities = elevator_capacities
+        self.elevator_start_floors = elevator_start_floors
+        self.elevator_bounds = elevator_bounds
+
+        self.reset()
+
+    def reset(self):
+        """
+        Re-initializes all queues and elevators to start the building as a
+        blank slate.
+        """
         # Initialize empty queues at each floor
         self._initialize_queues()
         # Initialize elevators with appropriate parameters
-        self._initialize_elevators(elevator_capacities, elevator_start_floors,
-                                   elevator_bounds)
+        self._initialize_elevators()
 
     def _initialize_queues(self):
         """
@@ -58,9 +70,10 @@ class Building(object):
         self.rejected_queue_passengers = []
         self.deboarding_passengers = []
         self.reached_max_wait_passengers = []
+        self.count_correct_direction_passengers = 0
+        self.count_incorrect_direction_passengers = 0
 
-    def _initialize_elevators(self, elevator_capacities, elevator_start_floors,
-                              elevator_bounds):
+    def _initialize_elevators(self):
         """
         Based on the capacities, start floors and bounds, create the elevators
         that will be in use by the building.
@@ -82,22 +95,22 @@ class Building(object):
                 defining each individual elevator's minimum and maximum floors
         """
         # Input error checking
-        if elevator_capacities is None:
+        if self.elevator_capacities is None:
             raise Exception("Elevator capacities cannot be None")
-        elif type(elevator_capacities) is not int:
-            if len(elevator_capacities) < self.num_elevators:
+        elif type(self.elevator_capacities) is not int:
+            if len(self.elevator_capacities) < self.num_elevators:
                 raise Exception("Elevator capacities should either be an "
                                 "integer or a list of integers equal to the "
                                 "number of elevators.")
 
-        if elevator_start_floors is not None:
-            if len(elevator_start_floors) != self.num_elevators:
+        if self.elevator_start_floors is not None:
+            if len(self.elevator_start_floors) != self.num_elevators:
                 raise Exception("Elevator start floor should either be None "
                                 "or a list of integers equal to the number of "
                                 "elevators.")
 
-        if elevator_bounds is not None:
-            if len(elevator_bounds) != self.num_elevators:
+        if self.elevator_bounds is not None:
+            if len(self.elevator_bounds) != self.num_elevators:
                 raise Exception("Elevator bounds should either be None or a "
                                 "list of list  integers equal to the number "
                                 "of elevators.")
@@ -105,22 +118,22 @@ class Building(object):
         elevators = []
 
         for i in range(self.num_elevators):
-            if elevator_start_floors is None:
+            if self.elevator_start_floors is None:
                 start_floor = 0
             else:
-                start_floor = elevator_start_floors[i]
+                start_floor = self.elevator_start_floors[i]
 
-            if type(elevator_capacities) is int:
-                capacity = elevator_capacities
+            if type(self.elevator_capacities) is int:
+                capacity = self.elevator_capacities
             else:
-                capacity = elevator_capacities[i]
+                capacity = self.elevator_capacities[i]
 
-            if elevator_bounds is None:
+            if self.elevator_bounds is None:
                 min_floor = 0
                 max_floor = self.num_floors - 1
             else:
-                min_floor = elevator_bounds[i][0]
-                max_floor = elevator_bounds[i][1]
+                min_floor = self.elevator_bounds[i][0]
+                max_floor = self.elevator_bounds[i][1]
 
             elevators.append(
                 Elevator(start_floor, capacity, min_floor, max_floor)
@@ -165,10 +178,12 @@ class Building(object):
             raise Exception("The number of actions provided must match the "
                             "number of elevators")
 
-        # Preprocessing
+        # Preprocessing, reset step tracking values
         self.deboarding_passengers = []
         self.rejected_queue_passengers = []
         self.reached_max_wait_passengers = []
+        self.count_correct_direction_passengers = 0
+        self.count_incorrect_direction_passengers = 0
 
         # Handle passengers that have now exceeded max wait time
         self.remove_max_wait_passengers()
@@ -194,7 +209,7 @@ class Building(object):
             new_queue = self.remove_max_wait_from_queue(queue)
             self.up_queues[i] = new_queue
 
-        for  i, queue in enumerate(self.down_queues):
+        for i, queue in enumerate(self.down_queues):
             new_queue = self.remove_max_wait_from_queue(queue)
             self.down_queues[i] = new_queue
 
@@ -306,10 +321,14 @@ class Building(object):
             self.unload(elevator_num)
 
     def move_down(self, elevator_num):
+        start_floor = self.elevators[elevator_num].get_current_floor()
         self.elevators[elevator_num].move(-1)
+        self.update_move_direction_counts(elevator_num, start_floor)
 
     def move_up(self, elevator_num):
+        start_floor = self.elevators[elevator_num].get_current_floor()
         self.elevators[elevator_num].move(1)
+        self.update_move_direction_counts(elevator_num, start_floor)
 
     def wait(self, elevator_num):
         """
@@ -358,6 +377,13 @@ class Building(object):
                 boarding_passengers.append(queue.pop(0))
 
         elevator.load_passengers(boarding_passengers)
+
+    def update_move_direction_counts(self, elevator_num, start_floor):
+        elevator = self.elevators[elevator_num]
+        self.count_correct_direction_passengers += \
+            elevator.count_correct_move_passengers(start_floor)
+        self.count_incorrect_direction_passengers += \
+            elevator.count_incorrect_move_passengers(start_floor)
 
     def _increment_step(self):
         """
@@ -426,3 +452,85 @@ class Building(object):
             down_buttons.append(len(self.down_queues[i]) > 0)
 
         return [up_buttons, down_buttons]
+
+    def get_reward_components(self):
+        """
+        Collect all of the different components that are used in calculating
+        the environment reward given the current state. Here is a list of the
+        components and a brief description of what they are and whether the
+        reward is positive or negative.
+
+        deboarding_passengers: positive reward for passengers successfully
+            dropped off at their destinations
+        rejected_queue_passengers: negative reward for passengers that tried
+            to join a full queue and could not
+        reached_max_wait_passengers: negative reward for passengers that
+            reached their maximum wait time and were
+        passengers_elevator: negative reward for the total number
+            of passengers currently still in elevators
+        passengers_queues: negative reward for the total number
+            of passengers currently still in queues
+        passengers_move_correct_direction: positive reward for the number of
+            passengers that were moved in the correct direction of their
+            destination in the elevator
+        passengers_move_incorrect_direction: megatove reward for the number of
+            passengers that were moved in the incorrect direction of their
+            destination in the elevator
+
+        Returns: dict
+        """
+        components = dict()
+
+        components['deboarding_passengers'] = len(self.deboarding_passengers)
+        components['rejected_queue_passengers'] = len(
+            self.rejected_queue_passengers
+        )
+        components['reached_max_wait_passengers'] = len(
+            self.reached_max_wait_passengers
+        )
+        components['count_correct_direction_passengers'] = \
+            self.count_correct_direction_passengers
+        components['count_incorrect_direction_passengers'] = \
+            self.count_incorrect_direction_passengers
+
+        passengers_elevator = 0
+        for elevator in self.elevators:
+            passengers_elevator += elevator.get_count_passengers()
+        components['passengers_elevator'] = passengers_elevator
+
+        passengers_queue = 0
+        for i in range(self.num_floors):
+            passengers_queue += len(self.up_queues[i])
+            passengers_queue += len(self.down_queues[i])
+        components['passengers_queue'] = passengers_queue
+
+        return components
+
+    def get_observation_limited(self):
+        """
+        Collect data for a limited observation of the system. Specifically,
+        the only normal available data to an elevator system are what buttons
+        are pressed on each floor for the queues, as well as the destination
+        floor buttons within the elevators. We don't know any of the
+        passengers' true destinations in the queue or how many passengers
+        pressed the destination buttons. Additionally, the elevators know what
+        floors they are currently on.
+
+        Returns: dict
+            Returns a dictionary containing two numpy arrays of boolean
+
+        """
+        observation = dict()
+
+        observation['elevator_buttons'] = array(
+            self.elevator_destination_bool_list(), astype=int8
+        )
+        observation['queue_buttons'] = array(
+            self.queue_request_button_statuses(), astype=int8
+        )
+
+        observation['elevator_floors'] = array([
+            elevator.get_current_floor() for elevator in self.elevators
+        ], astype=int8)
+
+        return observation

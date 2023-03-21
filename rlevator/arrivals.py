@@ -58,8 +58,6 @@ class PassengerArrivals(object):
     @staticmethod
     def generate_default_params(num_elevators, num_floors):
         """
-        DO NOT USE. NOT IMPLEMENTED YET.
-
         TODO: once environment is ready, do testing to determine the actual
         arrival rates to use as a baseline.
 
@@ -116,7 +114,7 @@ class PassengerArrivals(object):
 
     def generate_arrivals(self):
         """
-        Use the Poisson distribution sampling to generate the number of
+        Use the Poisson distribution sampling to generate the numbe  r of
         Passenger arrivals on each floor in the time step.
 
         Returns: List[int]
