@@ -64,7 +64,7 @@ class RLevatorEnv(gym.Env):
         self.step_num = 0
         self.termination_steps = termination_steps
 
-        if self.passenger_generator is not None:
+        if passenger_generator is not None:
             self.passenger_generator = passenger_generator
         else:
             pa_params = PassengerArrivals.generate_default_params(
@@ -83,7 +83,7 @@ class RLevatorEnv(gym.Env):
 
         # Set action space to all available actions for each elevator
         self.action_space = spaces.MultiDiscrete(
-            [len(Action) for _ in num_elevators]
+            [len(Action) for _ in range(num_elevators)]
         )
 
         if observation_type == 'limited':
