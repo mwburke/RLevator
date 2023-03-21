@@ -1,4 +1,4 @@
-from rlevator.arrivals import PassengerArrivals, generate_default_params
+from rlevator.arrivals import PassengerArrivals
 from rlevator.building import Building
 from rlevator.actions import Action
 
@@ -67,7 +67,9 @@ class RLevatorEnv(gym.Env):
         if self.passenger_generator is not None:
             self.passenger_generator = passenger_generator
         else:
-            pa_params = generate_default_params(num_elevators, num_floors)
+            pa_params = PassengerArrivals.generate_default_params(
+                num_elevators, num_floors
+            )
             self.passenger_generator = PassengerArrivals(**pa_params)
 
         self._generate_building(num_floors, num_elevators, max_queue,
@@ -84,8 +86,6 @@ class RLevatorEnv(gym.Env):
             [len(Action) for _ in num_elevators]
         )
 
-        # TODO: add observation space
-        # two different versions? limited and full?
         if observation_type == 'limited':
             self.observation_space = spaces.Dict(
                 elevator_buttons=spaces.MultiBinary(
@@ -189,6 +189,16 @@ class RLevatorEnv(gym.Env):
         """
         reward_components = self.building.get_reward_components()
 
+        reward_components['deboarding_passengers'] = len(
+            reward_components['deboarding_passengers']
+        )
+        reward_components['rejected_queue_passengers'] = len(
+            reward_components['rejected_queue_passengers']
+        )
+        reward_components['reached_max_wait_passengers'] = len(
+            reward_components['reached_max_wait_passengers']
+        )
+
         total_reward = 0.0
 
         for component, value in reward_components.items():
@@ -216,13 +226,12 @@ class RLevatorEnv(gym.Env):
 
     def _get_info(self):
         """
-        TODO: figure out logging stuff
-        as well as adding in data structures to hold it over the course of
-        running
+        Get the information we use to calculate reward components, but split
+        out so we can track performance for each component.
 
-        also need utils to calculate metrics at end of training
+        Returns: dict
         """
-        pass
+        return self.building.get_reward_components()
 
     def render(self):
         # TODO: this

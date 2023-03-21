@@ -481,13 +481,11 @@ class Building(object):
         """
         components = dict()
 
-        components['deboarding_passengers'] = len(self.deboarding_passengers)
-        components['rejected_queue_passengers'] = len(
+        components['deboarding_passengers'] = self.deboarding_passengers
+        components['rejected_queue_passengers'] = \
             self.rejected_queue_passengers
-        )
-        components['reached_max_wait_passengers'] = len(
+        components['reached_max_wait_passengers'] = \
             self.reached_max_wait_passengers
-        )
         components['count_correct_direction_passengers'] = \
             self.count_correct_direction_passengers
         components['count_incorrect_direction_passengers'] = \
