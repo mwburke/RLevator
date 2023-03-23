@@ -3,6 +3,10 @@ from rlevator.building import Building
 from rlevator.actions import Action
 
 import gymnasium as gym
+
+import sys
+sys.modules["gym"] = gym
+
 from gymnasium import spaces
 
 
@@ -13,8 +17,8 @@ DEFAULT_REWARD_WEIGHTS = dict(
     reached_max_wait_passengers=-10,
     passengers_elevator=-1,
     passengers_queues=-2,
-    passengers_move_correct_direction=2,
-    passengers_move_incorrect_direction=-5
+    count_correct_direction_passengers=2,
+    count_incorrect_direction_passengers=-5
 )
 
 
@@ -22,8 +26,8 @@ class RLevatorEnv(gym.Env):
     def __init__(self, render_mode=None, num_floors=10, max_queue=20,
                  num_elevators=1, passenger_generator=None,
                  elevator_params={'elevator_capacities': 10},
-                 observation_type='limited', reward_weights=None,
-                 termination_steps=200):
+                 observation_type='limited', flatten_space=True, 
+                 reward_weights=None, termination_steps=10000):
         """
         Create gymnasium environment containing a building with elevators,
         floors and passengers.
@@ -48,6 +52,10 @@ class RLevatorEnv(gym.Env):
             observation_type : str
                 Type of observation to use for learning. Currently, only
                 "limited" is available.
+            flatten_space : bool
+                True if we want to flatten the space to a Box space if
+                our learning environment doesn't support Dict and nested
+                MultiDiscrete and MultiBinary spaces.
             reward_weights : dict
                 Dictionary of weight values to be used in reward calculation.
                 If None, will use DEFAULT_REWARD_WEIGHTS.
@@ -85,9 +93,11 @@ class RLevatorEnv(gym.Env):
         self.action_space = spaces.MultiDiscrete(
             [len(Action) for _ in range(num_elevators)]
         )
+        
+        self.flatten_space = flatten_space
 
         if observation_type == 'limited':
-            self.observation_space = spaces.Dict(
+            self.limited_obs_space = spaces.Dict(
                 elevator_buttons=spaces.MultiBinary(
                     [num_elevators, num_floors]
                 ),
@@ -96,6 +106,10 @@ class RLevatorEnv(gym.Env):
                     [num_floors for _ in range(num_elevators)]
                 )
             )
+            if not self.flatten_space:
+                self.observation_space = self.limited_obs_space
+            else:
+                self.observation_space = spaces.utils.flatten_space(self.limited_obs_space)
         else:
             raise Exception("This observation type is not implemented yet.")
 
@@ -166,7 +180,7 @@ class RLevatorEnv(gym.Env):
             truncated : bool
             info : dict
         """
-        arrived_passengers = self.passenger_generator.generate_passengers()
+        arrived_passengers = self.passenger_generator.generate_passengers(self.step_num)
         self.building.execute_step(arrived_passengers, action)
         self.step_num += 1
 
@@ -219,7 +233,11 @@ class RLevatorEnv(gym.Env):
         Returns: dict
         """
         if self.observation_type == 'limited':
-            return self.building.get_observation_limited()
+            obs = self.building.get_observation_limited()
+            if self.flatten_space:
+                return spaces.utils.flatten(self.limited_obs_space, obs)
+            else:
+                return obs
 
         # Should have thrown error when creating so we don't reach this yet
         return None

@@ -14,7 +14,7 @@ class PassengerArrivals(object):
     """
 
     def __init__(self, num_floors, floor_arrival_rates,
-                 floor_destination_rates):
+                 floor_destination_rates, max_wait_steps):
         """
         This class stores the parameters used to define how often Passengers
         arrive on each floor and what their destinations will be.
@@ -54,6 +54,7 @@ class PassengerArrivals(object):
         self.num_floors = num_floors
         self.floor_arrival_rates = floor_arrival_rates
         self.floor_destination_rates = floor_destination_rates
+        self.max_wait_steps = max_wait_steps
 
     @staticmethod
     def generate_default_params(num_elevators, num_floors):
@@ -89,6 +90,9 @@ class PassengerArrivals(object):
         OTHER_FLOOR_DEST_PROB = (1 - GROUND_FLOOR_DEST_PROB) / (num_floors - 2)
 
         floor_arrival_rates = [GROUND_FLOOR_LAMBDA]
+
+        MAX_WAIT_STEPS = 50
+
         for _ in range(num_floors - 1):
             floor_arrival_rates.append(OTHER_FLOOR_LAMBDA)
 
@@ -109,7 +113,8 @@ class PassengerArrivals(object):
         return {
             'num_floors': num_floors,
             'floor_arrival_rates': floor_arrival_rates,
-            'floor_destination_rates': floor_destination_rates
+            'floor_destination_rates': floor_destination_rates,
+            'max_wait_steps': MAX_WAIT_STEPS
         }
 
     def generate_arrivals(self):
@@ -152,7 +157,7 @@ class PassengerArrivals(object):
 
         return destinations
 
-    def generate_passengers(self, curr_time_step, max_wait_steps):
+    def generate_passengers(self, curr_time_step):
         """
         For the current time step, use the arrival and destination rates to
         generate new passengers for the building.
@@ -160,9 +165,6 @@ class PassengerArrivals(object):
         Args:
             curr_time_step : int
                 Current time step of the environment
-            max_wait_steps : int
-                Maximum number of steps the Passengers will wait in the queue
-                before they leave it.
 
         Returns: List[Passenger]
             List of passengers to be added to the building's queues
@@ -175,7 +177,7 @@ class PassengerArrivals(object):
         for passenger_params in dest_info:
             passenger_params.update({
                 'start_step': curr_time_step,
-                'max_wait_steps': max_wait_steps
+                'max_wait_steps': self.max_wait_steps
             })
             new_passengers.append(Passenger(**passenger_params))
 
