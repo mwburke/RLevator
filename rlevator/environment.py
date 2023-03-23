@@ -1,6 +1,6 @@
 from rlevator.arrivals import PassengerArrivals
 from rlevator.building import Building
-from rlevator.actions import Action
+from rlevator.actions import Action, NUM_TO_ACTION
 
 import gymnasium as gym
 
@@ -9,13 +9,13 @@ from gymnasium import spaces
 
 # TODO: these need testing to determine decent defaults
 DEFAULT_REWARD_WEIGHTS = dict(
-    deboarding_passengers=10,
+    deboarding_passengers=100,
     rejected_queue_passengers=-10,
     reached_max_wait_passengers=-10,
     passengers_elevator=-1,
-    passengers_queues=-2,
-    count_correct_direction_passengers=2,
-    count_incorrect_direction_passengers=-5
+    passengers_queues=-1,
+    count_correct_direction_passengers=5,
+    count_incorrect_direction_passengers=-3
 )
 
 
@@ -181,7 +181,10 @@ class RLevatorEnv(gym.Env):
         arrived_passengers = self.passenger_generator.generate_passengers(
             self.step_num
         )
-        self.building.execute_step(arrived_passengers, action)
+
+        env_actions = [NUM_TO_ACTION[action_num] for action_num in action]
+
+        self.building.execute_step(arrived_passengers, env_actions)
         self.step_num += 1
 
         terminated = self.step_num > self.termination_steps

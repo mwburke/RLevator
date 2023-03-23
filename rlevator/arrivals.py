@@ -83,10 +83,10 @@ class PassengerArrivals(object):
             floor_destination_rates with sizes num_floors and num_floors x
             num_floors, respectively.
         """
-        GROUND_FLOOR_LAMBDA = 0.5 * num_elevators
+        GROUND_FLOOR_LAMBDA = 0.1 * num_elevators
         OTHER_FLOOR_LAMBDA = 0.5 * num_elevators / num_floors
 
-        GROUND_FLOOR_DEST_PROB = 0.8
+        GROUND_FLOOR_DEST_PROB = 0.9
         OTHER_FLOOR_DEST_PROB = (1 - GROUND_FLOOR_DEST_PROB) / (num_floors - 2)
 
         floor_arrival_rates = [GROUND_FLOOR_LAMBDA]
