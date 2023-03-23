@@ -4,9 +4,6 @@ from rlevator.actions import Action
 
 import gymnasium as gym
 
-import sys
-sys.modules["gym"] = gym
-
 from gymnasium import spaces
 
 
@@ -26,7 +23,7 @@ class RLevatorEnv(gym.Env):
     def __init__(self, render_mode=None, num_floors=10, max_queue=20,
                  num_elevators=1, passenger_generator=None,
                  elevator_params={'elevator_capacities': 10},
-                 observation_type='limited', flatten_space=True, 
+                 observation_type='limited', flatten_space=True,
                  reward_weights=None, termination_steps=10000):
         """
         Create gymnasium environment containing a building with elevators,
@@ -93,7 +90,7 @@ class RLevatorEnv(gym.Env):
         self.action_space = spaces.MultiDiscrete(
             [len(Action) for _ in range(num_elevators)]
         )
-        
+
         self.flatten_space = flatten_space
 
         if observation_type == 'limited':
@@ -109,7 +106,8 @@ class RLevatorEnv(gym.Env):
             if not self.flatten_space:
                 self.observation_space = self.limited_obs_space
             else:
-                self.observation_space = spaces.utils.flatten_space(self.limited_obs_space)
+                self.observation_space = \
+                    spaces.utils.flatten_space(self.limited_obs_space)
         else:
             raise Exception("This observation type is not implemented yet.")
 
@@ -180,7 +178,9 @@ class RLevatorEnv(gym.Env):
             truncated : bool
             info : dict
         """
-        arrived_passengers = self.passenger_generator.generate_passengers(self.step_num)
+        arrived_passengers = self.passenger_generator.generate_passengers(
+            self.step_num
+        )
         self.building.execute_step(arrived_passengers, action)
         self.step_num += 1
 
