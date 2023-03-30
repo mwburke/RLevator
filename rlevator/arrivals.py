@@ -84,7 +84,7 @@ class PassengerArrivals(object):
             num_floors, respectively.
         """
         GROUND_FLOOR_LAMBDA = 0.1 * num_elevators
-        OTHER_FLOOR_LAMBDA = 0.5 * num_elevators / num_floors
+        OTHER_FLOOR_LAMBDA = 0.2 * num_elevators / num_floors
 
         GROUND_FLOOR_DEST_PROB = 0.9
         OTHER_FLOOR_DEST_PROB = (1 - GROUND_FLOOR_DEST_PROB) / (num_floors - 2)
