@@ -1,6 +1,6 @@
 from rlevator.passenger import Passenger
 
-from numpy.random import poisson, choice
+from numpy import random
 
 
 class PassengerArrivals(object):
@@ -126,7 +126,7 @@ class PassengerArrivals(object):
             Returns a list of the number of Passenger arrivals on each floor.
             List length should equal the number of floors in the building.
         """
-        return poisson(self.floor_arrival_rates).tolist()
+        return random.poisson(self.floor_arrival_rates).tolist()
 
     def assign_destinations(self, arrivals):
         """
@@ -146,7 +146,7 @@ class PassengerArrivals(object):
 
         for floor, arrival_num in enumerate(arrivals):
             for _ in range(arrival_num):
-                destination_floor = choice(
+                destination_floor = random.choice(
                     floor_options,
                     p=self.floor_destination_rates[floor]
                 )
@@ -166,8 +166,9 @@ class PassengerArrivals(object):
             curr_time_step : int
                 Current time step of the environment
 
-        Returns: List[Passenger]
-            List of passengers to be added to the building's queues
+        Returns: 
+            List[Passenger]
+                List of passengers to be added to the building's queues
         """
         arrivals = self.generate_arrivals()
         dest_info = self.assign_destinations(arrivals)
