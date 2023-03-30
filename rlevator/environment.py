@@ -1,20 +1,21 @@
-from rlevator.arrivals import PassengerArrivals, generate_default_params
+from rlevator.arrivals import PassengerArrivals
 from rlevator.building import Building
-from rlevator.actions import Action
+from rlevator.actions import Action, NUM_TO_ACTION
 
 import gymnasium as gym
+
 from gymnasium import spaces
 
 
 # TODO: these need testing to determine decent defaults
 DEFAULT_REWARD_WEIGHTS = dict(
-    deboarding_passengers=10,
+    deboarding_passengers=100,
     rejected_queue_passengers=-10,
     reached_max_wait_passengers=-10,
     passengers_elevator=-1,
-    passengers_queues=-2,
-    passengers_move_correct_direction=2,
-    passengers_move_incorrect_direction=-5
+    passengers_queues=-1,
+    count_correct_direction_passengers=5,
+    count_incorrect_direction_passengers=-3
 )
 
 
@@ -22,8 +23,8 @@ class RLevatorEnv(gym.Env):
     def __init__(self, render_mode=None, num_floors=10, max_queue=20,
                  num_elevators=1, passenger_generator=None,
                  elevator_params={'elevator_capacities': 10},
-                 observation_type='limited', reward_weights=None,
-                 termination_steps=200):
+                 observation_type='limited', flatten_space=True,
+                 reward_weights=None, termination_steps=10000):
         """
         Create gymnasium environment containing a building with elevators,
         floors and passengers.
@@ -48,6 +49,10 @@ class RLevatorEnv(gym.Env):
             observation_type : str
                 Type of observation to use for learning. Currently, only
                 "limited" is available.
+            flatten_space : bool
+                True if we want to flatten the space to a Box space if
+                our learning environment doesn't support Dict and nested
+                MultiDiscrete and MultiBinary spaces.
             reward_weights : dict
                 Dictionary of weight values to be used in reward calculation.
                 If None, will use DEFAULT_REWARD_WEIGHTS.
@@ -64,10 +69,12 @@ class RLevatorEnv(gym.Env):
         self.step_num = 0
         self.termination_steps = termination_steps
 
-        if self.passenger_generator is not None:
+        if passenger_generator is not None:
             self.passenger_generator = passenger_generator
         else:
-            pa_params = generate_default_params(num_elevators, num_floors)
+            pa_params = PassengerArrivals.generate_default_params(
+                num_elevators, num_floors
+            )
             self.passenger_generator = PassengerArrivals(**pa_params)
 
         self._generate_building(num_floors, num_elevators, max_queue,
@@ -81,13 +88,13 @@ class RLevatorEnv(gym.Env):
 
         # Set action space to all available actions for each elevator
         self.action_space = spaces.MultiDiscrete(
-            [len(Action) for _ in num_elevators]
+            [len(Action) for _ in range(num_elevators)]
         )
 
-        # TODO: add observation space
-        # two different versions? limited and full?
+        self.flatten_space = flatten_space
+
         if observation_type == 'limited':
-            self.observation_space = spaces.Dict(
+            self.limited_obs_space = spaces.Dict(
                 elevator_buttons=spaces.MultiBinary(
                     [num_elevators, num_floors]
                 ),
@@ -96,6 +103,11 @@ class RLevatorEnv(gym.Env):
                     [num_floors for _ in range(num_elevators)]
                 )
             )
+            if not self.flatten_space:
+                self.observation_space = self.limited_obs_space
+            else:
+                self.observation_space = \
+                    spaces.utils.flatten_space(self.limited_obs_space)
         else:
             raise Exception("This observation type is not implemented yet.")
 
@@ -166,8 +178,13 @@ class RLevatorEnv(gym.Env):
             truncated : bool
             info : dict
         """
-        arrived_passengers = self.passenger_generator.generate_passengers()
-        self.building.execute_step(arrived_passengers, action)
+        arrived_passengers = self.passenger_generator.generate_passengers(
+            self.step_num
+        )
+
+        env_actions = [NUM_TO_ACTION[action_num] for action_num in action]
+
+        self.building.execute_step(arrived_passengers, env_actions)
         self.step_num += 1
 
         terminated = self.step_num > self.termination_steps
@@ -189,6 +206,16 @@ class RLevatorEnv(gym.Env):
         """
         reward_components = self.building.get_reward_components()
 
+        reward_components['deboarding_passengers'] = len(
+            reward_components['deboarding_passengers']
+        )
+        reward_components['rejected_queue_passengers'] = len(
+            reward_components['rejected_queue_passengers']
+        )
+        reward_components['reached_max_wait_passengers'] = len(
+            reward_components['reached_max_wait_passengers']
+        )
+
         total_reward = 0.0
 
         for component, value in reward_components.items():
@@ -209,20 +236,23 @@ class RLevatorEnv(gym.Env):
         Returns: dict
         """
         if self.observation_type == 'limited':
-            return self.building.get_observation_limited()
+            obs = self.building.get_observation_limited()
+            if self.flatten_space:
+                return spaces.utils.flatten(self.limited_obs_space, obs)
+            else:
+                return obs
 
         # Should have thrown error when creating so we don't reach this yet
         return None
 
     def _get_info(self):
         """
-        TODO: figure out logging stuff
-        as well as adding in data structures to hold it over the course of
-        running
+        Get the information we use to calculate reward components, but split
+        out so we can track performance for each component.
 
-        also need utils to calculate metrics at end of training
+        Returns: dict
         """
-        pass
+        return self.building.get_reward_components()
 
     def render(self):
         # TODO: this

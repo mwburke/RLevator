@@ -1,8 +1,2 @@
-cloudpickle==2.2.1
-gymnasium==0.27.1
-gymnasium-notices==0.0.1
-importlib-metadata==6.0.0
-jax-jumpy==0.2.0
-numpy==1.24.2
-typing_extensions==4.5.0
-zipp==3.15.0
+gymnasium==0.28.1
+stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3@e5a1e9ef40be2d78268cc10fa96fccad9c1e96ce

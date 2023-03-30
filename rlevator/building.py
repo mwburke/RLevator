@@ -1,7 +1,7 @@
 from rlevator.elevator import Elevator
 from rlevator.actions import Action
 
-from numpy import array, int8
+from numpy import array
 
 
 class Building(object):
@@ -415,7 +415,7 @@ class Building(object):
         """
         destinations = []
         for i in range(self.num_elevators):
-            destinations.append(self.elevator[i].get_destination_bool_list())
+            destinations.append(self.elevators[i].get_destination_bool_list())
 
         return destinations
 
@@ -430,7 +430,7 @@ class Building(object):
         """
         destinations = []
         for i in range(self.num_elevators):
-            destinations.append(self.elevator[i].get_destinations())
+            destinations.append(self.elevators[i].get_destinations())
 
         return destinations
 
@@ -481,13 +481,11 @@ class Building(object):
         """
         components = dict()
 
-        components['deboarding_passengers'] = len(self.deboarding_passengers)
-        components['rejected_queue_passengers'] = len(
+        components['deboarding_passengers'] = self.deboarding_passengers
+        components['rejected_queue_passengers'] = \
             self.rejected_queue_passengers
-        )
-        components['reached_max_wait_passengers'] = len(
+        components['reached_max_wait_passengers'] = \
             self.reached_max_wait_passengers
-        )
         components['count_correct_direction_passengers'] = \
             self.count_correct_direction_passengers
         components['count_incorrect_direction_passengers'] = \
@@ -502,7 +500,7 @@ class Building(object):
         for i in range(self.num_floors):
             passengers_queue += len(self.up_queues[i])
             passengers_queue += len(self.down_queues[i])
-        components['passengers_queue'] = passengers_queue
+        components['passengers_queues'] = passengers_queue
 
         return components
 
@@ -523,14 +521,14 @@ class Building(object):
         observation = dict()
 
         observation['elevator_buttons'] = array(
-            self.elevator_destination_bool_list(), astype=int8
+            self.elevator_destination_bool_list(), dtype=bool
         )
         observation['queue_buttons'] = array(
-            self.queue_request_button_statuses(), astype=int8
+            self.queue_request_button_statuses(), dtype=bool
         )
 
         observation['elevator_floors'] = array([
             elevator.get_current_floor() for elevator in self.elevators
-        ], astype=int8)
+        ], dtype=int)
 
         return observation
