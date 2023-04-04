@@ -4,6 +4,7 @@ from enum import Enum
 class Action(Enum):
     """
     There are 6 actions that an elevator can take:
+    
     0. Do nothing and remain at the current floor.
     1. Attempt to move up a floor. This does nothing if at the
        elevator's maximum floor.
