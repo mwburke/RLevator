@@ -1,9 +1,6 @@
 rlevator package
 ================
 
-Submodules
-----------
-
 rlevator.actions module
 -----------------------
 
@@ -48,14 +45,6 @@ rlevator.passenger module
 -------------------------
 
 .. automodule:: rlevator.passenger
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: rlevator
    :members:
    :undoc-members:
    :show-inheritance:
