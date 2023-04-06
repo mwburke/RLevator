@@ -12,6 +12,7 @@ jobs:
         run: |
           pip install sphinx sphinx_rtd_theme
           pip install myst-parser
+          pip install -e .
       - name: Sphinx build
         run: |
           sphinx-apidoc -o docs/source rlevator
