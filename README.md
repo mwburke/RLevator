@@ -1,5 +1,17 @@
 # RLevator
 
-Open AI gymnasium environment for elevator control. This is currently **WIP** and the 1.0 release will be the first official version considered ready for use.
+Farama gymnasium environment for elevator control.
 
+Please visit [the documentation](https://mwburke.github.io/RLevator/index.html) for more info on usage.
 
+### Citation
+
+```
+@software{rlevator,
+    author       = {Matthew Burke},
+    title        = {RLevator: A Farama gymnasium environment for elevator control},
+    year         = 2023,
+    version      = {latest},
+    url          = {https://mwburke.github.io/RLevator}
+}
+```
