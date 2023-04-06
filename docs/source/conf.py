@@ -20,6 +20,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'sphinx.ext.githubpages',
     'myst_parser'
 ]
 
@@ -32,4 +33,4 @@ autoclass_content = 'both'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'alabaster'
-html_static_path = ['_static']
+html_static_path = ['static']
